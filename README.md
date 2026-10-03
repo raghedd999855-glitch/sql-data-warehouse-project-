@@ -1,4 +1,5 @@
 SQL Server Data Warehouse & Analytics Project
+
 📌 Project Overview
 
 This project demonstrates the design and implementation of a Data Warehouse using SQL Server, following a layered data architecture to transform raw source data into clean, structured, and analysis-ready datasets.
