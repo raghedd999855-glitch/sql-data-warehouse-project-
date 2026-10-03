@@ -1,56 +1,24 @@
-```sql
-USE DataWareHouse
-GO
-
 /*
 ===============================================================================
 Silver Layer - Quality Checks
 ===============================================================================
 
 Purpose:
-These queries are used to validate data quality in the Silver Layer
-before the data is consumed by the Gold Layer for analytics and reporting.
+Validate data quality in the Silver Layer before using it
+in the Gold Layer for analytics and reporting.
 
-The checks cover:
-- Unwanted spaces
-- Standardization and consistency
-- Invalid dates
-- Invalid order dates
-- Data consistency between sales, quantity, and price
+Checks:
+- Invalid Dates
+- Invalid Order Dates
+- Sales Data Consistency
 ===============================================================================
 */
 
+USE DataWareHouse
+GO
 
 -- ============================================================================
--- Check 1: Unwanted Spaces
--- Purpose: Check for leading or trailing spaces in text columns.
--- ============================================================================
-
-SELECT
-    *
-FROM silver.erp_px_cat_g1v2
-WHERE cat != TRIM(cat)
-   OR subcat != TRIM(subcat)
-   OR maintenance != TRIM(maintenance)
-
-
--- ============================================================================
--- Check 2: Standardization & Consistency
--- Purpose: Review distinct values to identify inconsistent categories
---          or unexpected values.
--- ============================================================================
-
-SELECT DISTINCT
-    id,
-    cat,
-    subcat,
-    maintenance
-FROM bronze.erp_px_cat_g1v2
-
-
--- ============================================================================
--- Check 3: Invalid Sales Dates
--- Purpose: Identify invalid or incorrectly formatted order dates.
+-- Check 1: Invalid Sales Dates
 -- ============================================================================
 
 SELECT
@@ -63,26 +31,18 @@ WHERE sls_order_dt <= 0
 
 
 -- ============================================================================
--- Check 4: Invalid Order Dates
--- Purpose: Check that the order date is not later than the shipping
---          or due date.
+-- Check 2: Invalid Order Dates
 -- ============================================================================
 
-SELECT
-    *
+SELECT *
 FROM silver.crm_sales_details
 WHERE sls_order_dt < sls_ship_dt
    OR sls_order_dt < sls_due_dt
 
 
 -- ============================================================================
--- Check 5: Sales Data Consistency
--- Purpose: Verify the relationship between sales, quantity, and price.
---
--- Expected:
--- Sales = Quantity × Price
---
--- Values should not be NULL, zero, or negative.
+-- Check 3: Sales Data Consistency
+-- Expected: Sales = Quantity * Price
 -- ============================================================================
 
 SELECT DISTINCT
@@ -97,4 +57,3 @@ WHERE sls_sales != sls_quantity * sls_price
    OR sls_sales <= 0
    OR sls_quantity <= 0
    OR sls_price <= 0
-```
